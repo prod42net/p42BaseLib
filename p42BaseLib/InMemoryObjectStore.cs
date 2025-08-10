@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using p42ReportingLib.Models;
 
-namespace p42ReportingAPI.Reports;
+namespace p42BaseLib;
 
 public class InMemoryObjectStore : BaseStore
 {

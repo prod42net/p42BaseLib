@@ -1,8 +1,9 @@
-﻿using p42ReportingLib.Models;
+﻿using p42BaseLib;
+using p42ReportingAPI.Reports;
 
-namespace p42ReportingAPI.Reports;
+namespace p42BaseLib;
 
-public class BaseStore : IReportStore
+public class BaseStore : IObjectModelStore
 {
     public Dictionary<string, object> Properties { get; }
 
@@ -18,17 +19,17 @@ public class BaseStore : IReportStore
         throw new NotImplementedException();
     }
 
-    public virtual Task<ReportModel?> Get(string id,string? prefix = null)
+    public virtual Task<T?> Get<T>(string id,string? prefix = null) where T : class
     {
         throw new NotImplementedException();
     }
 
-    public virtual Task<List<ReportModel>> GetAll(string id, string? prefix = null)
+    public virtual Task<List<T>> GetAll<T>(string id, string? prefix = null) where T : class
     {
         throw new NotImplementedException();
     }
 
-    public virtual Task<ReportModel?> Add(ReportModel model,string? prefix = null)
+    public virtual Task<T?> Add<T>(T model,string? prefix = null) where T : class
     {
         throw new NotImplementedException();
     }
@@ -38,7 +39,7 @@ public class BaseStore : IReportStore
         throw new NotImplementedException();
     }
 
-    public virtual bool Update(string id, ReportModel model,string? prefix = null)
+    public virtual bool Update<T>(string id, T model,string? prefix = null)
     {
         throw new NotImplementedException();
     }

@@ -1,10 +1,8 @@
 ﻿using System.Text.Json;
 using Amazon.S3;
 using Amazon.S3.Model;
-using p42ReportingLib;
-using p42ReportingLib.Models;
 
-namespace p42ReportingAPI.Reports;
+namespace p42BaseLib;
 
 public class GOObjectStore : BaseStore
 {
@@ -77,9 +75,9 @@ public class GOObjectStore : BaseStore
         }
     }
 
-    public override async Task<List<ReportModel>> GetAll(string id = "", string? prefix = null)
+    public override async Task<List<T>> GetAll<T>(string id = "", string? prefix = null) where T : class
 {
-    var results = new List<ReportModel>();
+    var results = new List<T>();
 
     try
     {
@@ -124,7 +122,7 @@ public class GOObjectStore : BaseStore
                             BucketName = _bucketName,
                             Key = s3Obj.Key
                         });
-                        var model = await System.Text.Json.JsonSerializer.DeserializeAsync<ReportModel>(getResp.ResponseStream);
+                        var model = await System.Text.Json.JsonSerializer.DeserializeAsync<T>(getResp.ResponseStream);
                         if (model != null)
                             results.Add(model);
                     }
@@ -146,7 +144,7 @@ public class GOObjectStore : BaseStore
         return results;
     }
 }
-    public override async Task<ReportModel?> Get(string id,string? prefix = null)
+    public override async Task<T?> Get<T>(string id,string? prefix = null) where T : class
     {
         var request = new GetObjectRequest
         {
@@ -156,12 +154,12 @@ public class GOObjectStore : BaseStore
         using var getResponse = await _client.GetObjectAsync(request);
         using var reader = new StreamReader(getResponse.ResponseStream);
         //string content = reader.ReadToEnd();
-        ReportModel? model = JsonSerializer.Deserialize<ReportModel>(reader.ReadToEnd());
+        T model = JsonSerializer.Deserialize<T>(reader.ReadToEnd());
         if (model == null) return null;
-        return model;
+        return (T?)model;
     }
 
-    public override async Task<ReportModel?> Add(ReportModel model,string? prefix = null)
+    public override async Task<T?> Add<T>(T model,string? prefix = null) where T : class
     {
         if (model == null) return null;
         model.Id = Guid.NewGuid().ToString();
@@ -208,7 +206,7 @@ public class GOObjectStore : BaseStore
         }
     }
 
-    public override bool Update(string id, ReportModel model,string? prefix = null)
+    public override bool Update<T>(string id, T model,string? prefix = null)
     {
         if (string.IsNullOrWhiteSpace(id) || model == null || _client == null)
             return false;
