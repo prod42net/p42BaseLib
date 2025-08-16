@@ -6,4 +6,5 @@ public interface IP42Logger
     void Debug(string message);
     void Error(string message);
     void Info(string message);
+    string FormatMessage(DateTime timeStamp,LogType logType,string message);
 }
