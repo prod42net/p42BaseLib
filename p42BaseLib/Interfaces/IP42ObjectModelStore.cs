@@ -2,9 +2,6 @@
 
 public interface IP42ObjectModelStore
 {
-    
-    // todo: might be good for caching ...
-    // Dictionary<string,object> Properties { get; }
 
     /// Gets the total number of objects in the store, optionally filtered by a specified prefix.
     /// <param name="prefix">An optional string specifying the prefix to filter the objects.
