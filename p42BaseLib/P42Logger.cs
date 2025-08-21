@@ -42,13 +42,20 @@ public class P42Logger : IP42Logger
     void SetErrorQueueSize(int size) => _errorQueue = new(size);
 
     bool LogToFile { get; set; } = true;
-    bool ErrorToFile { get; set; } = true;
-    bool DebugToFile { get; set; } = false;
-    bool InfoToFile { get; set; } = false;
+    bool LogToConsole { get; set; } = true;
+    // bool ErrorToFile { get; set; } = true;
+    // bool DebugToFile { get; set; } = false;
+    // bool InfoToFile { get; set; } = false;
 
     public P42Logger(bool production = false) 
     {
         SetProduction(production);
+    }
+
+    public P42Logger(bool production, bool logToFile, bool logToConsole) : this(production)
+    {
+        LogToFile = logToFile;
+        LogToConsole = logToConsole;
     }
 
     public P42Logger(string logPath, string errorPath, bool production = false) : this()
@@ -167,8 +174,10 @@ public class P42Logger : IP42Logger
         message = FormatMessage(ts,logType,message);
         string fileName = GetLogFileName(ts,logType, path);
         
-        WriteToConsole(message);
-        WriteToFile(ts,logType,message, fileName);
+        if (LogToConsole)
+            WriteToConsole(message);
+        if (LogToFile)
+            WriteToFile(ts,logType,message, fileName);
     }
 
     void WriteToConsole(string message)
