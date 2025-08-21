@@ -58,7 +58,7 @@ public class P42Logger : IP42Logger
         LogToConsole = logToConsole;
     }
 
-    public P42Logger(string logPath, string errorPath, bool production = false) : this()
+    public P42Logger(string logPath, string errorPath, bool production = false) : this(production)
     {
         SetLogPath(logPath);
         SetErrorPath(errorPath);
