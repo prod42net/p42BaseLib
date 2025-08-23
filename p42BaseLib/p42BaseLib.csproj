@@ -8,8 +8,12 @@
         <Title>p42 base lib</Title>
         <Description>This package provides basic functions and helpers</Description>
         <Copyright>prod42net</Copyright>
-        <PackageProjectUrl>https://www.prod42.net</PackageProjectUrl>
-        <PackageLicenseUrl>MIT</PackageLicenseUrl>
+        <PackageProjectUrl>https://github.com/prod42net/p42BaseLib</PackageProjectUrl>
+        <PackageRepsitoryProjectUrl>https://github.com/prod42net/p42BaseLib</PackageRepsitoryProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Version>1.0.1</Version>
     </PropertyGroup>
+
 
 </Project>
