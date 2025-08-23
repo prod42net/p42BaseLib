@@ -12,11 +12,16 @@
         <PackageRepsitoryProjectUrl>https://github.com/prod42net/p42BaseLib</PackageRepsitoryProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <Version>1.0.1</Version>
+        <Version>1.0.2</Version>
+        <PackageIcon>prod42Net_image_head.jpg</PackageIcon>
     </PropertyGroup>
     <ItemGroup>
         <!-- Ensure the README is included in the nupkg -->
         <None Include="README.md" Pack="true" PackagePath="" />
+        <None Update="prod42Net_image_head.jpg">
+          <Pack>True</Pack>
+          <PackagePath></PackagePath>
+        </None>
     </ItemGroup>
 
 
