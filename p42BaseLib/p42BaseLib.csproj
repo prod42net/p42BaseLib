@@ -9,6 +9,7 @@
         <Description>This package provides basic functions and helpers</Description>
         <Copyright>prod42net</Copyright>
         <PackageProjectUrl>https://www.prod42.net</PackageProjectUrl>
+        <PackageLicenseUrl>MIT</PackageLicenseUrl>
     </PropertyGroup>
 
 </Project>

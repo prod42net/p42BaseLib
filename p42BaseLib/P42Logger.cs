@@ -98,7 +98,7 @@ public class P42Logger : IP42Logger
                 counter = _infoCounter.ToString(@"0000");
                 break;
         }
-
+        
         string fileName = $"{dir}\\{year}{month}{day}{counter}_{fn}{ext}";
         return fileName;
     }
@@ -189,6 +189,8 @@ public class P42Logger : IP42Logger
     {
         try
         {
+            fileName = CheckAndRotateLogFile(timeStamp, logType, fileName);
+
             if (!Directory.Exists(Path.GetDirectoryName(fileName)))
                 Directory.CreateDirectory(Path.GetDirectoryName(fileName) ?? String.Empty);
 
@@ -199,5 +201,34 @@ public class P42Logger : IP42Logger
         {
             Console.WriteLine(e);
         }
+    }
+
+    string CheckAndRotateLogFile(DateTime timeStamp, LogType logType, string fileName)
+    {
+        if (File.Exists(fileName))
+        {
+            var fileInfo = new FileInfo(fileName);
+            if (fileInfo.Length > 1024 * 1024) // 1MB
+            {
+                switch (logType)
+                {
+                    case LogType.Log:
+                        _logCounter = _logCounter >= _maxLogFiles ? 1 : _logCounter + 1;
+                        break;
+                    case LogType.Error:
+                        _errorCounter = _errorCounter >= _maxErrorFiles ? 1 : _errorCounter + 1;
+                        break;
+                    case LogType.Debug:
+                        _debugCounter = _debugCounter >= _maxLogFiles ? 1 : _debugCounter + 1;
+                        break;
+                    case LogType.Info:
+                        _infoCounter = _infoCounter >= _maxLogFiles ? 1 : _infoCounter + 1;
+                        break;
+                }
+                fileName = GetLogFileName(timeStamp, logType, fileName);
+            }
+        }
+
+        return fileName;
     }
 }
