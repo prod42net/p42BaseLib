@@ -1,27 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Title>p42 base lib</Title>
+        <Title>p42BaseLib</Title>
         <Description>This package provides basic functions and helpers</Description>
         <Copyright>prod42net</Copyright>
         <PackageProjectUrl>https://github.com/prod42net/p42BaseLib</PackageProjectUrl>
         <PackageRepsitoryProjectUrl>https://github.com/prod42net/p42BaseLib</PackageRepsitoryProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <Version>1.0.2</Version>
-        <PackageIcon>prod42Net_image_head.jpg</PackageIcon>
+        <Version>1.0.4</Version>
+        <PackageIcon>prod42net.jpg</PackageIcon>
+        <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
+        <PackageReleaseNotes>update dotnet 10, bugfixes, changed icon</PackageReleaseNotes>
     </PropertyGroup>
     <ItemGroup>
-        <!-- Ensure the README is included in the nupkg -->
+        
         <None Include="README.md" Pack="true" PackagePath="" />
-        <None Update="prod42Net_image_head.jpg">
-          <Pack>True</Pack>
-          <PackagePath></PackagePath>
-        </None>
+        <None Include="prod42net.jpg" Pack="true" PackagePath="" />
     </ItemGroup>
 
 

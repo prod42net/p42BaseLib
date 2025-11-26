@@ -41,7 +41,7 @@ public class P42Logger : IP42Logger
     void SetLogQueueSize(int size) => _logQueue = new(size);
     void SetErrorQueueSize(int size) => _errorQueue = new(size);
 
-    bool LogToFile { get; set; } = true;
+    bool LogToFile { get; set; } = false;
     bool LogToConsole { get; set; } = true;
     // bool ErrorToFile { get; set; } = true;
     // bool DebugToFile { get; set; } = false;
