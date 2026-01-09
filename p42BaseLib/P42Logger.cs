@@ -172,12 +172,14 @@ public class P42Logger : IP42Logger
         }
 
         message = FormatMessage(ts,logType,message);
-        string fileName = GetLogFileName(ts,logType, path);
         
         if (LogToConsole)
             WriteToConsole(message);
         if (LogToFile)
+        {
+            string fileName = GetLogFileName(ts,logType, path);
             WriteToFile(ts,logType,message, fileName);
+        }
     }
 
     void WriteToConsole(string message)
