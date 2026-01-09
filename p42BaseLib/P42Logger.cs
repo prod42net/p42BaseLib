@@ -141,42 +141,54 @@ public class P42Logger : IP42Logger
     }
 
 
-    public virtual string FormatMessage(DateTime timeStamp,LogType logType,string message)
+    public virtual string FormatMessage(DateTime ts,LogType logType,string message)
     {
-       
-        string timePrefix = (_yearFolders ? "" : timeStamp.Year.ToString(@"0000")) +
-                            (_monthFolders ? "" : timeStamp.Month.ToString(@"00")) +
-                            (_monthFolders ? "" : timeStamp.Month.ToString(@"00 "));
-        return $"[{timePrefix}{timeStamp:HH:mm:ss.fff}] [{logType.ToString("")}] {message}"; 
-
+        return $"{GetTimeStampLabel(ts)} {GetLogLabel(logType)} {message}"; 
     }
-    
+
+    protected string GetLogLabel(LogType logType)
+    {
+        return $"[{logType.ToString("")}]"; 
+    }
+    protected string GetTimeStampLabel(DateTime ts)
+    {
+        //ts = _useUtc ? DateTime.UtcNow : DateTime.Now;
+        string timePrefix = (_yearFolders ? "" : ts.Year.ToString(@"0000")) +
+                            (_monthFolders ? "" : ts.Month.ToString(@"00")) +
+                            (_monthFolders ? "" : ts.Month.ToString(@"00 "));
+        return $"[{timePrefix}{ts:HH:mm:ss.fff}]"; 
+    }
+
+    protected DateTime GetTimeStamp()
+    {
+        return _useUtc ? DateTime.UtcNow : DateTime.Now;
+    }
+
     protected virtual void WriteEntry(LogType logType, string message)
     {
-        DateTime ts = _useUtc ? DateTime.UtcNow : DateTime.Now;
-        string path = "";
-        switch (logType)
-        {
-            case LogType.Log:
-                path = _logPath;
-                break;
-            case LogType.Error:
-                path = _errorPath;
-                break;
-            case LogType.Debug:
-                path = _debugPath;
-                break;
-            case LogType.Info:
-                path = _infoPath;
-                break;
-        }
-
+        DateTime ts = GetTimeStamp();
         message = FormatMessage(ts,logType,message);
         
         if (LogToConsole)
             WriteToConsole(message);
         if (LogToFile)
         {
+            string path = "";
+            switch (logType)
+            {
+                case LogType.Log:
+                    path = _logPath;
+                    break;
+                case LogType.Error:
+                    path = _errorPath;
+                    break;
+                case LogType.Debug:
+                    path = _debugPath;
+                    break;
+                case LogType.Info:
+                    path = _infoPath;
+                    break;
+            }
             string fileName = GetLogFileName(ts,logType, path);
             WriteToFile(ts,logType,message, fileName);
         }
