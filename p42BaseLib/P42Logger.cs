@@ -1,4 +1,5 @@
 ﻿
+using System.Collections;
 using p42BaseLib.Interfaces;
 
 
@@ -12,10 +13,44 @@ public enum LogType
     Info
 }
 
+record P42LogObject
+{
+    LogType _logType;
+    string _msg;
+    DateTime _timeStamp;
+    public P42LogObject(LogType logType, string message, DateTime timeStamp)
+    {
+        _logType = logType;
+        _msg = message;
+        _timeStamp = timeStamp;
+    }
+
+    public LogType GetLogType()
+    {
+        return _logType;
+    }
+
+    public string GetMessage()
+    {
+        return _msg;
+    }
+
+    public DateTime GetTimeStamp()
+    {
+        return _timeStamp;
+    }
+}
+
 public class P42Logger : IP42Logger
 {
  
+    CancellationTokenSource _cts = new CancellationTokenSource();
 
+
+    Thread? _wThread;
+    object _wLocker = new object();
+    SemaphoreSlim _wSignal = new SemaphoreSlim(0);
+    
     bool _yearFolders = true;
     bool _monthFolders = true;
     bool _dayFolders = true;
@@ -33,8 +68,9 @@ public class P42Logger : IP42Logger
     string _debugPath = @".\Logs\Debug.txt";
     string _infoPath = @".\Logs\Info.txt";
 
-    FixedSizeQueue<string> _logQueue = new(200);
-    FixedSizeQueue<string> _errorQueue = new(500);
+    FixedSizeQueue<P42LogObject> _logQueue = new FixedSizeQueue<P42LogObject>(200);
+    FixedSizeQueue<P42LogObject> _errorQueue = new FixedSizeQueue<P42LogObject>(500);
+
 
     bool Production { get; set; }
     void SetProduction(bool production) => Production = production;
@@ -43,13 +79,11 @@ public class P42Logger : IP42Logger
 
     bool LogToFile { get; set; } = false;
     bool LogToConsole { get; set; } = true;
-    // bool ErrorToFile { get; set; } = true;
-    // bool DebugToFile { get; set; } = false;
-    // bool InfoToFile { get; set; } = false;
 
     public P42Logger(bool production = false) 
     {
         SetProduction(production);
+        Start();
     }
 
     public P42Logger(bool production, bool logToFile, bool logToConsole) : this(production)
@@ -73,6 +107,7 @@ public class P42Logger : IP42Logger
         SetErrorQueueSize(errorQueueSize);
     }
 
+    
     string GetLogFileName(DateTime timeStamp,LogType logType, string path)
     {
         string? dir = Path.GetDirectoryName(path);
@@ -118,28 +153,30 @@ public class P42Logger : IP42Logger
 
     public void Log(string message)
     {
-        WriteEntry(LogType.Log, message);
-        _logQueue.Enqueue(message);
+        _logQueue.Enqueue(new P42LogObject(LogType.Log,message,GetTimeStamp()));
+        _wSignal.Release();
     }
 
     public void Debug(string message)
     {
         if (Production) return;
-        WriteEntry(LogType.Debug, message);
+        _logQueue.Enqueue(new P42LogObject(LogType.Debug,message,GetTimeStamp()));
+        _wSignal.Release();
     }
 
     public void Error(string message)
     {
-        WriteEntry(LogType.Error, message);
-        _errorQueue.Enqueue(message);
-        // should be stored somewhere at least or better someone gets notified ;)
+        _logQueue.Enqueue(new P42LogObject(LogType.Error,message,GetTimeStamp()));
+        _wSignal.Release();
     }
 
     public void Info(string message)
     {
-        WriteEntry(LogType.Info, message);
+        _logQueue.Enqueue(new P42LogObject(LogType.Info,message,GetTimeStamp()));
+        _wSignal.Release();
     }
 
+    
 
     public virtual string FormatMessage(DateTime ts,LogType logType,string message)
     {
@@ -164,10 +201,9 @@ public class P42Logger : IP42Logger
         return _useUtc ? DateTime.UtcNow : DateTime.Now;
     }
 
-    protected virtual void WriteEntry(LogType logType, string message)
+    protected virtual void WriteEntry(LogType logType, string message,DateTime timestamp)
     {
-        DateTime ts = GetTimeStamp();
-        message = FormatMessage(ts,logType,message);
+        message = FormatMessage(timestamp,logType,message);
         
         if (LogToConsole)
             WriteToConsole(message);
@@ -189,8 +225,8 @@ public class P42Logger : IP42Logger
                     path = _infoPath;
                     break;
             }
-            string fileName = GetLogFileName(ts,logType, path);
-            WriteToFile(ts,logType,message, fileName);
+            string fileName = GetLogFileName(timestamp,logType, path);
+            WriteToFile(timestamp,logType,message, fileName);
         }
     }
 
@@ -244,5 +280,39 @@ public class P42Logger : IP42Logger
         }
 
         return fileName;
+    }
+    
+    public void Start()
+    {
+        if (_wThread == null)
+        {
+            _wThread = new Thread(Run);
+            _wThread.IsBackground = false;
+            _wThread.Name = nameof(LogWorker);
+            _wThread.Start();
+        }
+    }
+    
+    public void Stop()
+    {
+        _cts.Cancel();
+        _wSignal.Release();
+        _wThread?.Join();
+    }
+
+    
+    void Run()
+    {
+        CancellationToken token = _cts.Token;
+        while (!token.IsCancellationRequested)
+        {
+            _wSignal.Wait(token);
+            P42LogObject obj;
+            lock (_wLocker)
+            {
+                obj = _logQueue.Dequeue();
+            }
+            WriteEntry(obj.GetLogType(), obj.GetMessage(),obj.GetTimeStamp());
+        }
     }
 }
