@@ -80,7 +80,7 @@ public class P42Logger : IP42Logger
     bool LogToFile { get; set; } = false;
     bool LogToConsole { get; set; } = true;
 
-    public P42Logger(bool production = false) 
+    public P42Logger(bool production = true) 
     {
         SetProduction(production);
         Start();
