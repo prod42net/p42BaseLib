@@ -288,7 +288,7 @@ public class P42Logger : IP42Logger
         {
             _wThread = new Thread(Run);
             _wThread.IsBackground = false;
-            _wThread.Name = nameof(LogWorker);
+            _wThread.Name = "LogWorker";
             _wThread.Start();
         }
     }
